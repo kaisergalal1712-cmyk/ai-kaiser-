@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Question Solver</title>
+</head>
+<body>
+  <h1>Upload a Question Image</h1>
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="uploadImage()">Solve Question</button>
+
+  <h2>Question:</h2>
+  <p id="question"></p>
+
+  <h2>Solution:</h2>
+  <p id="solution"></p>
+
+  <h2>Video Explanations:</h2>
+  <ul id="videos"></ul>
+
+  <script>
+    async function uploadImage() {
+      const fileInput = document.getElementById('imageInput')
+      const file = fileInput.files[0]
+      if (!file) return alert("Please select an image!")
+
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const res = await fetch("http://localhost:8000/solve", {
+        method: "POST",
+        body: formData
+      })
+
+      const data = await res.json()
+      document.getElementById("question").innerText = data.question
+      document.getElementById("solution").innerText = data.solution
+
+      const videosList = document.getElementById("videos")
+      videosList.innerHTML = ""
+      data.videos.forEach(video => {
+        const li = document.createElement("li")
+        li.innerHTML = `<a href="${video.url}" target="_blank">${video.title}</a>`
+        videosList.appendChild(li)
+      })
+    }
+  </script>
+</body>
+</html>
